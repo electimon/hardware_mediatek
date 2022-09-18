@@ -26,9 +26,9 @@ namespace impl {
 namespace mediatek {
 
 class Power : public BnPower {
+public:
     Power();
     ~Power();
-    int handle;
     ndk::ScopedAStatus setMode(Mode type, bool enabled) override;
     ndk::ScopedAStatus isModeSupported(Mode type, bool* _aidl_return) override;
     ndk::ScopedAStatus setBoost(Boost type, int32_t durationMs) override;
@@ -53,6 +53,9 @@ private:
     libpowerhal_UserScnDisableAll_handle libpowerhal_UserScnDisableAll;
     libpowerhal_UserScnRestoreAll_handle libpowerhal_UserScnRestoreAll;
 #endif
+private:
+    int mHandle;
+    bool mLowPowerEnabled;
 };
 
 }  // namespace mediatek
