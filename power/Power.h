@@ -33,7 +33,6 @@ public:
     ndk::ScopedAStatus isModeSupported(Mode type, bool* _aidl_return) override;
     ndk::ScopedAStatus setBoost(Boost type, int32_t durationMs) override;
     ndk::ScopedAStatus isBoostSupported(Boost type, bool* _aidl_return) override;
-#if POWERHAL_AIDL_VERSION == 2
     ndk::ScopedAStatus createHintSession(int32_t tgid, int32_t uid,
                                          const std::vector<int32_t>& threadIds,
                                          int64_t durationNanos,
@@ -52,9 +51,10 @@ private:
     libpowerhal_LockRel_handle libpowerhal_LockRel;
     libpowerhal_UserScnDisableAll_handle libpowerhal_UserScnDisableAll;
     libpowerhal_UserScnRestoreAll_handle libpowerhal_UserScnRestoreAll;
-#endif
-private:
-    int mHandle;
+
+    int mLaunchHandle;
+    int mExpensiveRenderingHandle;
+    int mSustainedPerformanceHandle;
     bool mLowPowerEnabled;
 };
 
