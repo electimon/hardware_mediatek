@@ -161,9 +161,6 @@ ndk::ScopedAStatus Power::isModeSupported(Mode type, bool* _aidl_return) {
 ndk::ScopedAStatus Power::setBoost(Boost type, int32_t durationMs) {
     int32_t intType = static_cast<int32_t>(type);
 
-    if (type >= Boost::ML_ACC)
-        return ndk::ScopedAStatus::ok();
-
     // Avoid boosts with 0 duration, as those will run indefinitely
     if (type == Boost::INTERACTION && durationMs < 1)
         durationMs = 80;
