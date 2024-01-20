@@ -28,7 +28,6 @@ namespace vibrator {
 Vibrator::Vibrator() {
     if (exists(kVibratorStrength)) {
         mVibratorStrengthSupported = true;
-        mVibratorStrengthMax = getNode(kVibratorStrengthMax, 9);
     }
 }
 #endif
@@ -39,6 +38,9 @@ ndk::ScopedAStatus Vibrator::getCapabilities(int32_t* _aidl_return) {
 
     #ifdef VIBRATOR_SUPPORTS_EFFECTS
     *_aidl_return |= IVibrator::CAP_PERFORM_CALLBACK;
+
+    if (mVibratorStrengthSupported)
+        *_aidl_return |= IVibrator::CAP_AMPLITUDE_CONTROL;
     #endif
 
     return ndk::ScopedAStatus::ok();
@@ -87,8 +89,7 @@ ndk::ScopedAStatus Vibrator::perform(Effect effect, EffectStrength strength,
 
     if (mVibratorStrengthSupported) {
         // Vibration strength is relative to the max strength reported by the kernel.
-        int vib_strength = static_cast<int>(mVibratorStrengthMax * vibStrengths[strength] / 10.0 + 0.5);
-        status = setNode(kVibratorStrength, vib_strength);
+        status = setNode(kVibratorStrength, vibStrengths[strength]);
         if (!status.isOk())
             return status;
     }

@@ -31,8 +31,7 @@ const std::string kVibratorDuration    = "/sys/class/leds/vibrator/duration";
 const std::string kVibratorActivate    = "/sys/class/leds/vibrator/activate";
 
 #ifdef VIBRATOR_SUPPORTS_EFFECTS
-const std::string kVibratorStrength    = "/sys/kernel/thunderquake_engine/level";
-const std::string kVibratorStrengthMax = "/sys/kernel/thunderquake_engine/max";
+const std::string kVibratorStrength    = "/sys/class/leds/vibrator/gain";
 
 static std::map<Effect, int32_t> vibEffects = {
     { Effect::CLICK, 50 },
@@ -42,9 +41,9 @@ static std::map<Effect, int32_t> vibEffects = {
 };
 
 static std::map<EffectStrength, int32_t> vibStrengths = {
-    { EffectStrength::LIGHT, 4},
-    { EffectStrength::MEDIUM, 6},
-    { EffectStrength::STRONG, 10}
+    { EffectStrength::LIGHT, 64},
+    { EffectStrength::MEDIUM, 96},
+    { EffectStrength::STRONG, 128}
 };
 #endif
 
