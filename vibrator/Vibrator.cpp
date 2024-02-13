@@ -129,8 +129,28 @@ ndk::ScopedAStatus Vibrator::getSupportedEffects(std::vector<Effect>* /* _aidl_r
     return ndk::ScopedAStatus::ok();
 }
 
-ndk::ScopedAStatus Vibrator::setAmplitude(float amplitude __unused) {
-    return ndk::ScopedAStatus(AStatus_fromExceptionCode(EX_UNSUPPORTED_OPERATION));
+ndk::ScopedAStatus Vibrator::setAmplitude(float amplitude) {
+    ndk::ScopedAStatus status;
+    EffectStrength strength;
+
+    if (!mVibratorStrengthSupported)
+        return ndk::ScopedAStatus(AStatus_fromExceptionCode(EX_UNSUPPORTED_OPERATION));
+
+    if (amplitude <= 0.0f || amplitude > 1.0f) {
+        return ndk::ScopedAStatus(AStatus_fromExceptionCode(EX_ILLEGAL_ARGUMENT));
+    }
+
+    if (amplitude > 0.0f && amplitude <= 0.33f)
+        strength = EffectStrength::LIGHT;
+    else if (amplitude > 0.33f && amplitude <= 0.66f)
+        strength = EffectStrength::MEDIUM;
+    else if (amplitude > 0.67f)
+        strength = EffectStrength::STRONG;
+
+    status = setNode(kVibratorStrength, vibStrengths[strength]);
+    if (!status.isOk())
+        return status;
+    return ndk::ScopedAStatus::ok();
 }
 
 ndk::ScopedAStatus Vibrator::setExternalControl(bool enabled __unused) {
