@@ -15,6 +15,7 @@ LOCAL_SRC_FILES := \
 LOCAL_SHARED_LIBRARIES := \
     libbase \
     libbinder_ndk \
+    liblog \
     android.hardware.vibrator-V2-ndk_platform
 
 ifeq ($(TARGET_VIBRATOR_SUPPORTS_EFFECTS),true)

@@ -17,41 +17,46 @@
 #pragma once
 
 #include <aidl/android/hardware/vibrator/BnVibrator.h>
-#ifdef VIBRATOR_SUPPORTS_EFFECTS
 #include <map>
-#endif
 
 namespace aidl {
 namespace android {
 namespace hardware {
 namespace vibrator {
 
-const std::string kVibratorState       = "/sys/class/leds/vibrator/state";
+const std::string kVibratorLoop       = "/sys/class/leds/vibrator/loop";
+const std::string kVibratorIndex       = "/sys/class/leds/vibrator/index";
 const std::string kVibratorDuration    = "/sys/class/leds/vibrator/duration";
 const std::string kVibratorActivate    = "/sys/class/leds/vibrator/activate";
-
-#ifdef VIBRATOR_SUPPORTS_EFFECTS
+const std::string kVibratorActivateMode = "/sys/class/leds/vibrator/activate_mode";
 const std::string kVibratorStrength    = "/sys/class/leds/vibrator/gain";
 
-static std::map<Effect, int32_t> vibEffects = {
-    { Effect::CLICK, 50 },
-    { Effect::DOUBLE_CLICK, 25 },
-    { Effect::HEAVY_CLICK, 60 },
-    { Effect::TICK, 32 }
+// From haptic_hv.h
+enum aw_haptic_work_mode {
+        AW_STANDBY_MODE = 0,
+        AW_RAM_MODE = 1,
+        AW_RTP_MODE = 2,
+        AW_TRIG_MODE = 3,
+        AW_CONT_MODE = 4,
+        AW_RAM_LOOP_MODE = 5,
+};
+
+static std::map<Effect, std::pair<int32_t, int32_t>> vibEffects = {
+    { Effect::CLICK, { 3, 0 } },
+    { Effect::DOUBLE_CLICK, { 3, 0 } },
+    { Effect::TICK, { 2, 0 } },
+    { Effect::TEXTURE_TICK, { 4, 15 } },
+    { Effect::HEAVY_CLICK, { 5, 0 } }
 };
 
 static std::map<EffectStrength, int32_t> vibStrengths = {
-    { EffectStrength::LIGHT, 64},
-    { EffectStrength::MEDIUM, 96},
-    { EffectStrength::STRONG, 128}
+    { EffectStrength::LIGHT, 64 },
+    { EffectStrength::MEDIUM, 96 },
+    { EffectStrength::STRONG, 128 }
 };
-#endif
 
 class Vibrator : public BnVibrator {
 public:
-#ifdef VIBRATOR_SUPPORTS_EFFECTS
-    Vibrator();
-#endif
     ndk::ScopedAStatus getCapabilities(int32_t* _aidl_return) override;
     ndk::ScopedAStatus off() override;
     ndk::ScopedAStatus on(int32_t timeoutMs,
@@ -84,13 +89,17 @@ public:
                                    const std::shared_ptr<IVibratorCallback> &callback) override;
 private:
     static ndk::ScopedAStatus setNode(const std::string path, const int32_t value);
-#ifdef VIBRATOR_SUPPORTS_EFFECTS
+    static ndk::ScopedAStatus setNode(const std::string path, const std::string value);
+    static ndk::ScopedAStatus setMode(const int32_t mode);
+    static ndk::ScopedAStatus setIndex(const int32_t index);
+    static ndk::ScopedAStatus setLoop(const int32_t times);
+    static ndk::ScopedAStatus setStrength(const EffectStrength strength);
     static bool exists(const std::string path);
     static int getNode(const std::string path, const int fallback);
     bool mVibratorStrengthSupported;
     int mVibratorStrengthMax;
-#endif
     ndk::ScopedAStatus activate(const int32_t timeoutMs);
+    void msleep(const int32_t msec);
 };
 
 }  // namespace vibrator

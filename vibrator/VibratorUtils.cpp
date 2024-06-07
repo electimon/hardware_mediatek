@@ -27,14 +27,43 @@ namespace vibrator {
 ndk::ScopedAStatus Vibrator::setNode(const std::string path, const int32_t value) {
     std::ofstream file(path);
 
-    if (!file.is_open()) {
+    file << value << std::endl;
+
+    if (file.fail()) {
         LOG(ERROR) << "Failed to write " << value << " to " << path;
-        return ndk::ScopedAStatus(AStatus_fromExceptionCode(EX_SERVICE_SPECIFIC));
+        return ndk::ScopedAStatus::fromExceptionCode(EX_SERVICE_SPECIFIC);
     }
+
+    return ndk::ScopedAStatus::ok();
+}
+
+ndk::ScopedAStatus Vibrator::setNode(const std::string path, const std::string value) {
+    std::ofstream file(path);
 
     file << value << std::endl;
 
+    if (file.fail()) {
+        LOG(ERROR) << "Failed to write " << value << " to " << path;
+        return ndk::ScopedAStatus::fromExceptionCode(EX_SERVICE_SPECIFIC);
+    }
+
     return ndk::ScopedAStatus::ok();
+}
+
+ndk::ScopedAStatus Vibrator::setMode(const int32_t mode) {
+    return setNode(kVibratorActivateMode, mode);
+}
+
+ndk::ScopedAStatus Vibrator::setIndex(const int32_t index) {
+    return setNode(kVibratorIndex, index);
+}
+
+ndk::ScopedAStatus Vibrator::setLoop(const int32_t times) {
+    return setNode(kVibratorLoop, "0 " + std::to_string(times));
+}
+
+ndk::ScopedAStatus Vibrator::setStrength(const EffectStrength strength) {
+    return setNode(kVibratorStrength, vibStrengths[strength]);
 }
 
 ndk::ScopedAStatus Vibrator::activate(const int32_t timeoutMs) {
@@ -44,10 +73,6 @@ ndk::ScopedAStatus Vibrator::activate(const int32_t timeoutMs) {
     if (timeoutMs < 1) {
         return off();
     }
-
-    status = setNode(kVibratorState, 1);
-    if (!status.isOk())
-        return status;
 
     status = setNode(kVibratorDuration, timeoutMs);
     if (!status.isOk())
@@ -60,7 +85,6 @@ ndk::ScopedAStatus Vibrator::activate(const int32_t timeoutMs) {
     return ndk::ScopedAStatus::ok();
 }
 
-#ifdef VIBRATOR_SUPPORTS_EFFECTS
 bool Vibrator::exists(const std::string path) {
     std::ofstream file(path);
     return file.is_open();
@@ -78,7 +102,10 @@ int Vibrator::getNode(const std::string path, const int fallback) {
     file >> value;
     return value;
 }
-#endif
+
+void Vibrator::msleep(const int32_t msec) {
+    usleep(msec * 1000);
+}
 
 }  // namespace vibrator
 }  // namespace hardware
